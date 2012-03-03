@@ -1,15 +1,29 @@
-;;; This file is a refactor from Marco Benelli's bindings of Cairo for
-;;; Gambit-C, by Álvaro Castro-Castilla
 ;;; Copyright (c) 2008 Marco Benelli <mbenelli@yahoo.com>
 ;;; Copyright (c) 2012 Álvaro Castro-Castilla 
 
-; (import (base ffi
-;               system-conditional))
-; 
-; (%compile-cond ("Linux" ("-w -I/usr/include/cairo -I/usr/include/freetype2"
-;                          "-lcairo"))
-;                ("Darwin" ("-w -I/opt/local/include/cairo -I/opt/local/include/freetype2 -I/opt/local/include"
-;                           "-L/opt/local/lib -lobjc -lcairo")))
+;; ("Linux" ("-w -I/usr/include/cairo -I/usr/include/freetype2" "-lcairo"))
+;; ("Darwin" ("-w -I/opt/local/include/cairo -I/opt/local/include/freetype2 -I/opt/local/include" "-L/opt/local/lib -lobjc -lcairo"))
+
+;-------------------------------------------------------------------------------
+; Includes
+;-------------------------------------------------------------------------------
+
+(c-declare "#include <cairo.h>")
+(cond-expand
+ ((not android)
+  (c-declare "#include <cairo-ft.h>")
+  (c-declare "#include <cairo-pdf.h>")
+  (c-declare "#include <cairo-ps.h>")
+  (c-declare "#include <cairo-svg.h>")
+  (c-declare "#include <cairo-xlib.h>")
+  (c-declare "#include <X11/Xlib.h>")
+  (c-declare "#include <fontconfig/fontconfig.h>")
+  (c-declare "#include <ft2build.h>")
+  (c-declare "#include FT_FREETYPE_H")))
+
+;-------------------------------------------------------------------------------
+; Enums
+;-------------------------------------------------------------------------------
 
 (define-macro
   (import-enum-constants scheme-type c-type . names)
@@ -23,77 +37,65 @@
          (c-lambda (int)
                    ,scheme-type
                    ,(string-append
-                      "static " c-type-str " _tmp_[] = {\n"
-                      (apply string-append
-                             (map (lambda (i name)
-                                    (let ((name-str (symbol->string name)))
-                                      (string-append
-                                        (if (> i 0) "," "")
-                                        name-str)))
-                                  (interval 0 nb-names)
-                                  names))
-                      "};\n"
-                      "___ASSIGN_NEW_WITH_INIT(___result_voidstar," c-type-str ",_tmp_[___arg1]);\n")))
+                     "static " c-type-str " _tmp_[] = {\n"
+                     (apply string-append
+                            (map (lambda (i name)
+                                   (let ((name-str (symbol->string name)))
+                                     (string-append
+                                      (if (> i 0) "," "")
+                                      name-str)))
+                                 (interval 0 nb-names)
+                                 names))
+                     "};\n"
+                     "___ASSIGN_NEW_WITH_INIT(___result_voidstar," c-type-str ",_tmp_[___arg1]);\n")))
        ,@(map (lambda (i name)
                 `(define ,name (,wrapper ,i)))
               (interval 0 nb-names)
               names))))
 
-(c-declare "#include <cairo.h>")
-;(c-declare "#include <cairo-ft.h>")
-;(c-declare "#include <cairo-pdf.h>")
-;(c-declare "#include <cairo-ps.h>")
-;(c-declare "#include <cairo-svg.h>")
-;(c-declare "#include <cairo-xlib.h>")
-;(c-declare "#include <X11/Xlib.h>")
-;(c-declare "#include <fontconfig/fontconfig.h>")
-;(c-declare "#include <ft2build.h>")
-;(c-declare "#include FT_FREETYPE_H")
-
-(c-define-type double* (pointer double))
-(c-define-type void* (pointer void))
-(c-define-type char* char-string)
-(c-define-type int* (pointer int))
-(c-define-type unsigned-char* (pointer unsigned-char))
-
 (c-define-type cairo:format-t "cairo_format_t")
-(c-define-type cairo:surface-t (struct "cairo_surface_t"))
-(c-define-type cairo:surface-t* (pointer "cairo_surface_t"))
-(c-define-type cairo:surface-t** (pointer (pointer "cairo_surface_t")))
-(c-define-type cairo:content-t "cairo_content_t")
-(c-define-type cairo:surface-type-t "cairo_surface_type_t")
-(c-define-type cairo:bool-t   (type "cairo_bool_t"))
-(c-define-type cairo:status-t   (type "cairo_status_t"))
-(c-define-type cairo:status-t*  (pointer cairo:status-t))
-(c-define-type cairo:status-t** (pointer cairo:status-t*))
-
-; (define CAIRO_FORMAT_ARGB32 0)
-; (define CAIRO_FORMAT_RGB24 1)
-; (define CAIRO_FORMAT_A8 2)
-; (define CAIRO_FORMAT_A1 3)
-; (define CAIRO_FORMAT_RGB16_565 4)
 (import-enum-constants cairo:format-t cairo_format_t
                        CAIRO_FORMAT_ARGB32
                        CAIRO_FORMAT_RGB24
                        CAIRO_FORMAT_A8
                        CAIRO_FORMAT_A1
                        CAIRO_FORMAT_RGB16_565)
-;; TODO: this is due to case-sensitivity
 (define cairo:format-argb32 CAIRO_FORMAT_ARGB32)
 (define cairo:format-rgb24 CAIRO_FORMAT_RGB24)
 (define cairo:format-a8 CAIRO_FORMAT_A8)
 (define cairo:format-a1 CAIRO_FORMAT_A1)
 (define cairo:format-rgb16-565 CAIRO_FORMAT_RGB16_565)
 
-;; TODO
-(define CAIRO_LINE_CAP_BUTT 0)
-(define CAIRO_LINE_CAP_ROUND 1)
-(define CAIRO_LINE_CAP_SQUARE 2)
-(define CAIRO_FONT_SLANT_NORMAL 0)
-(define CAIRO_FONT_SLANT_ITALIC 1)
-(define CAIRO_FONT_SLANT_OBLIQUE 2)
-(define CAIRO_FONT_WEIGHT_NORMAL 0)
-(define CAIRO_FONT_WEIGHT_BOLD 0)
+(c-define-type cairo:line-cap-t "cairo_line_cap_t")
+(import-enum-constants cairo:line-cap-t cairo_line_cap_t
+                       CAIRO_LINE_CAP_BUTT
+                       CAIRO_LINE_CAP_ROUND
+                       CAIRO_LINE_CAP_SQUARE)
+(define cairo:line-cap-butt CAIRO_LINE_CAP_BUTT)
+(define cairo:line-cap-round CAIRO_LINE_CAP_ROUND)
+(define cairo:line-cap-square CAIRO_LINE_CAP_SQUARE)
+
+(cond-expand
+ ((not android)
+  (c-define-type cairo:font-slant-t "cairo_font_slant_t")
+  (import-enum-constants cairo:font-slant-t cairo_font_slant_t
+                         CAIRO_FONT_SLANT_NORMAL
+                         CAIRO_FONT_SLANT_ITALIC
+                         CAIRO_FONT_SLANT_OBLIQUE)
+  (define cairo:font-slant-normal CAIRO_FONT_SLANT_NORMAL)
+  (define cairo:font-slant-italic CAIRO_FONT_SLANT_ITALIC)
+  (define cairo:font-slant-oblique CAIRO_FONT_SLANT_OBLIQUE)
+  
+  (c-define-type cairo:font-weight-t "cairo_font_weight_t")
+  (import-enum-constants cairo:font-weight-t cairo_font_weight_t
+                         CAIRO_FONT_WEIGHT_NORMAL
+                         CAIRO_FONT_WEIGHT_BOLD)
+  (define cairo:font-weight-normal CAIRO_FONT_WEIGHT_NORMAL)
+  (define cairo:font-weight-bold CAIRO_FONT_WEIGHT_BOLD)))
+
+;-------------------------------------------------------------------------------
+; Types
+;-------------------------------------------------------------------------------
 
 ;;; X-Window types
 (cond-expand
@@ -112,6 +114,7 @@
 ;; (c-define-type FcPattern* (pointer "FcPattern"))
 ;; (c-define-type cairo:font-face-t "cairo_font_face_t")
 ;; (c-define-type cairo:font-face-t* (pointer "cairo_font_face_t"))
+
 (c-define-type FT-Face "FT_Face")
 (c-define-type FcPattern "FcPattern")
 (c-define-type FcPattern* (pointer "FcPattern"))
@@ -123,13 +126,20 @@
 ;(c-define-type cairo:svg-version-t** (pointer (pointer "cairo_svg_version_t")))
 ;(c-define-type cairo:destroy-func-t  (pointer "cairo_destroy_func_t"))
 
-
-
-
-
-
-
-
+(c-define-type double* (pointer double))
+(c-define-type void* (pointer void))
+(c-define-type char* char-string)
+(c-define-type int* (pointer int))
+(c-define-type unsigned-char* (pointer unsigned-char))
+(c-define-type cairo:surface-t (struct "cairo_surface_t"))
+(c-define-type cairo:surface-t* (pointer "cairo_surface_t"))
+(c-define-type cairo:surface-t** (pointer (pointer "cairo_surface_t")))
+(c-define-type cairo:content-t "cairo_content_t")
+(c-define-type cairo:surface-type-t "cairo_surface_type_t")
+(c-define-type cairo:bool-t   (type "cairo_bool_t"))
+(c-define-type cairo:status-t   (type "cairo_status_t"))
+(c-define-type cairo:status-t*  (pointer cairo:status-t))
+(c-define-type cairo:status-t** (pointer cairo:status-t*))
 (c-define-type cairo:destroy-func-t  (function (void*) void))
 (c-define-type cairo:user-data-key-t  (type "cairo_user_data_key_t"))
 (c-define-type cairo:user-data-key-t*  (pointer cairo:user-data-key-t))
@@ -140,7 +150,6 @@
 (c-define-type cairo:t** (pointer (pointer "cairo_t")))
 (c-define-type cairo:antialias-t "cairo_antialias_t")
 (c-define-type cairo:fill-rule-t "cairo_fill_rule_t")
-(c-define-type cairo:line-cap-t "cairo_line_cap_t")
 (c-define-type cairo:line-join-t "cairo_line_join_t")
 (c-define-type cairo:operator-t "cairo_operator_t")
 (c-define-type cairo:rectangle-t (struct "cairo_rectangle_t"))
@@ -188,8 +197,10 @@
 (c-define-type cairo:glyph-t (struct "cairo_glyph_t"))
 (c-define-type cairo:glyph-t* (pointer "cairo_glyph_t"))
 (c-define-type cairo:glyph-t** (pointer (pointer "cairo_glyph_t")))
-(c-define-type cairo:font-slant-t "cairo_font_slant_t")
-(c-define-type cairo:font-weight-t "cairo_font_weight_t")
+
+;-------------------------------------------------------------------------------
+; Functions
+;-------------------------------------------------------------------------------
 
 (define cairo:create (c-lambda (cairo:surface-t*) cairo:t* "cairo_create"))
 (define cairo:reference (c-lambda (cairo:t*) cairo:t* "cairo_reference"))
@@ -421,24 +432,24 @@
 (define cairo:device-to-user (c-lambda (cairo:t* double* double*) void "cairo_device_to_user"))
 (define cairo:device-to-user-distance (c-lambda (cairo:t* double* double*) void "cairo_device_to_user_distance"))
 
-;; (cond-expand
-;;  ((not android)
-;;   (define cairo:xlib-surface-create (c-lambda (Display* Drawable Visual* int int) cairo:surface-t* "cairo_xlib_surface_create"))
-;;   (define cairo:xlib-surface-create-for-bitmap (c-lambda (Display* Pixmap Screen* int int) cairo:surface-t* "cairo_xlib_surface_create_for_bitmap"))
-;;   (define cairo:xlib-surface-set-size (c-lambda (cairo:surface-t* int int) void "cairo_xlib_surface_set_size"))
-;;   (define cairo:xlib-surface-get-display (c-lambda (cairo:surface-t*) Display* "cairo_xlib_surface_get_display"))
-;;   (define cairo:xlib-surface-get-screen (c-lambda (cairo:surface-t*) Screen* "cairo_xlib_surface_get_screen"))
-;;   (define cairo:xlib-surface-set-drawable (c-lambda (cairo:surface-t* Drawable int int) void "cairo_xlib_surface_set_drawable"))
-;;   (define cairo:xlib-surface-get-drawable (c-lambda (cairo:surface-t*) Drawable "cairo_xlib_surface_get_drawable"))
-;;   (define cairo:xlib-surface-get-visual (c-lambda (cairo:surface-t*) Visual* "cairo_xlib_surface_get_visual"))
-;;   (define cairo:xlib-surface-get-width (c-lambda (cairo:surface-t*) int "cairo_xlib_surface_get_width"))
-;;   (define cairo:xlib-surface-get-height (c-lambda (cairo:surface-t*) int "cairo_xlib_surface_get_height"))
-;;   (define cairo:xlib-surface-get-depth (c-lambda (cairo:surface-t*) int "cairo_xlib_surface_get_depth")))
-;;  (else))
+(cond-expand
+ ((not android)
+  (define cairo:xlib-surface-create (c-lambda (Display* Drawable Visual* int int) cairo:surface-t* "cairo_xlib_surface_create"))
+  (define cairo:xlib-surface-create-for-bitmap (c-lambda (Display* Pixmap Screen* int int) cairo:surface-t* "cairo_xlib_surface_create_for_bitmap"))
+  (define cairo:xlib-surface-set-size (c-lambda (cairo:surface-t* int int) void "cairo_xlib_surface_set_size"))
+  (define cairo:xlib-surface-get-display (c-lambda (cairo:surface-t*) Display* "cairo_xlib_surface_get_display"))
+  (define cairo:xlib-surface-get-screen (c-lambda (cairo:surface-t*) Screen* "cairo_xlib_surface_get_screen"))
+  (define cairo:xlib-surface-set-drawable (c-lambda (cairo:surface-t* Drawable int int) void "cairo_xlib_surface_set_drawable"))
+  (define cairo:xlib-surface-get-drawable (c-lambda (cairo:surface-t*) Drawable "cairo_xlib_surface_get_drawable"))
+  (define cairo:xlib-surface-get-visual (c-lambda (cairo:surface-t*) Visual* "cairo_xlib_surface_get_visual"))
+  (define cairo:xlib-surface-get-width (c-lambda (cairo:surface-t*) int "cairo_xlib_surface_get_width"))
+  (define cairo:xlib-surface-get-height (c-lambda (cairo:surface-t*) int "cairo_xlib_surface_get_height"))
+  (define cairo:xlib-surface-get-depth (c-lambda (cairo:surface-t*) int "cairo_xlib_surface_get_depth")))
+ (else))
 
-;; ;;;
-;; ;;; Extra functions 
-;; ;;;
+;-------------------------------------------------------------------------------
+; Custom functions
+;-------------------------------------------------------------------------------
 
 ;; ;; (define make-cairo:a8-image-WRONG
 ;; ;;   (c-lambda (int int)
