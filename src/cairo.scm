@@ -27,41 +27,14 @@
 ; Enums
 ;-------------------------------------------------------------------------------
 
-(define-macro
-  (import-enum-constants scheme-type c-type . names)
-  (define (interval lo hi)
-    (if (< lo hi) (cons lo (interval (+ lo 1) hi)) '()))
-  (let ((c-type-str (symbol->string c-type))
-        (nb-names (length names))
-        (wrapper (gensym)))
-    `(begin
-       (define ,wrapper
-         (c-lambda (int)
-                   ,scheme-type
-                   ,(string-append
-                     "static " c-type-str " _tmp_[] = {\n"
-                     (apply string-append
-                            (map (lambda (i name)
-                                   (let ((name-str (symbol->string name)))
-                                     (string-append
-                                      (if (> i 0) "," "")
-                                      name-str)))
-                                 (interval 0 nb-names)
-                                 names))
-                     "};\n"
-                     "___ASSIGN_NEW_WITH_INIT(___result_voidstar," c-type-str ",_tmp_[___arg1]);\n")))
-       ,@(map (lambda (i name)
-                `(define ,name (,wrapper ,i)))
-              (interval 0 nb-names)
-              names))))
-
-(c-define-type cairo:format-t "cairo_format_t")
-(import-enum-constants cairo:format-t cairo_format_t
-                       CAIRO_FORMAT_ARGB32
-                       CAIRO_FORMAT_RGB24
-                       CAIRO_FORMAT_A8
-                       CAIRO_FORMAT_A1
-                       CAIRO_FORMAT_RGB16_565)
+;(c-define-type cairo:format-t "cairo_format_t")
+(c-define-type cairo:format-t unsigned-int)
+(c-constants
+ CAIRO_FORMAT_ARGB32
+ CAIRO_FORMAT_RGB24
+ CAIRO_FORMAT_A8
+ CAIRO_FORMAT_A1
+ CAIRO_FORMAT_RGB16_565)
 (define cairo:format-argb32 CAIRO_FORMAT_ARGB32)
 (define cairo:format-rgb24 CAIRO_FORMAT_RGB24)
 (define cairo:format-a8 CAIRO_FORMAT_A8)
@@ -69,10 +42,10 @@
 (define cairo:format-rgb16-565 CAIRO_FORMAT_RGB16_565)
 
 (c-define-type cairo:line-cap-t "cairo_line_cap_t")
-(import-enum-constants cairo:line-cap-t cairo_line_cap_t
-                       CAIRO_LINE_CAP_BUTT
-                       CAIRO_LINE_CAP_ROUND
-                       CAIRO_LINE_CAP_SQUARE)
+(c-constants
+ CAIRO_LINE_CAP_BUTT
+ CAIRO_LINE_CAP_ROUND
+ CAIRO_LINE_CAP_SQUARE)
 (define cairo:line-cap-butt CAIRO_LINE_CAP_BUTT)
 (define cairo:line-cap-round CAIRO_LINE_CAP_ROUND)
 (define cairo:line-cap-square CAIRO_LINE_CAP_SQUARE)
@@ -80,20 +53,63 @@
 (cond-expand
  ((not android)
   (c-define-type cairo:font-slant-t "cairo_font_slant_t")
-  (import-enum-constants cairo:font-slant-t cairo_font_slant_t
-                         CAIRO_FONT_SLANT_NORMAL
-                         CAIRO_FONT_SLANT_ITALIC
-                         CAIRO_FONT_SLANT_OBLIQUE)
+  (c-constants
+   CAIRO_FONT_SLANT_NORMAL
+   CAIRO_FONT_SLANT_ITALIC
+   CAIRO_FONT_SLANT_OBLIQUE)
   (define cairo:font-slant-normal CAIRO_FONT_SLANT_NORMAL)
   (define cairo:font-slant-italic CAIRO_FONT_SLANT_ITALIC)
   (define cairo:font-slant-oblique CAIRO_FONT_SLANT_OBLIQUE)
   
   (c-define-type cairo:font-weight-t "cairo_font_weight_t")
-  (import-enum-constants cairo:font-weight-t cairo_font_weight_t
-                         CAIRO_FONT_WEIGHT_NORMAL
-                         CAIRO_FONT_WEIGHT_BOLD)
+  (c-constants
+   CAIRO_FONT_WEIGHT_NORMAL
+   CAIRO_FONT_WEIGHT_BOLD)
   (define cairo:font-weight-normal CAIRO_FONT_WEIGHT_NORMAL)
   (define cairo:font-weight-bold CAIRO_FONT_WEIGHT_BOLD)))
+
+;(c-define-type cairo:status-t (type "cairo_status_t"))
+(c-define-type cairo:status-t unsigned-int)
+(c-define-type cairo:status-t*  (pointer cairo:status-t))
+(c-define-type cairo:status-t** (pointer cairo:status-t*))
+(c-constants
+ CAIRO_STATUS_SUCCESS
+ CAIRO_STATUS_NO_MEMORY
+ CAIRO_STATUS_INVALID_RESTORE
+ CAIRO_STATUS_INVALID_POP_GROUP
+ CAIRO_STATUS_NO_CURRENT_POINT
+ CAIRO_STATUS_INVALID_MATRIX
+ CAIRO_STATUS_INVALID_STATUS
+ CAIRO_STATUS_NULL_POINTER
+ CAIRO_STATUS_INVALID_STRING
+ CAIRO_STATUS_INVALID_PATH_DATA
+ CAIRO_STATUS_READ_ERROR
+ CAIRO_STATUS_WRITE_ERROR
+ CAIRO_STATUS_SURFACE_FINISHED
+ CAIRO_STATUS_SURFACE_TYPE_MISMATCH
+ CAIRO_STATUS_PATTERN_TYPE_MISMATCH
+ CAIRO_STATUS_INVALID_CONTENT
+ CAIRO_STATUS_INVALID_FORMAT
+ CAIRO_STATUS_INVALID_VISUAL
+ CAIRO_STATUS_FILE_NOT_FOUND
+ CAIRO_STATUS_INVALID_DASH
+ CAIRO_STATUS_INVALID_DSC_COMMENT
+ CAIRO_STATUS_INVALID_INDEX
+ CAIRO_STATUS_CLIP_NOT_REPRESENTABLE
+ CAIRO_STATUS_TEMP_FILE_ERROR
+ CAIRO_STATUS_INVALID_STRIDE
+ CAIRO_STATUS_FONT_TYPE_MISMATCH
+ CAIRO_STATUS_USER_FONT_IMMUTABLE
+ CAIRO_STATUS_USER_FONT_ERROR
+ CAIRO_STATUS_NEGATIVE_COUNT
+ CAIRO_STATUS_INVALID_CLUSTERS
+ CAIRO_STATUS_INVALID_SLANT
+ CAIRO_STATUS_INVALID_WEIGHT
+ CAIRO_STATUS_INVALID_SIZE
+ CAIRO_STATUS_USER_FONT_NOT_IMPLEMENTED
+ CAIRO_STATUS_DEVICE_TYPE_MISMATCH
+ CAIRO_STATUS_DEVICE_ERROR
+ CAIRO_STATUS_LAST_STATUS)
 
 ;-------------------------------------------------------------------------------
 ; Types
@@ -139,9 +155,6 @@
 (c-define-type cairo:content-t "cairo_content_t")
 (c-define-type cairo:surface-type-t "cairo_surface_type_t")
 (c-define-type cairo:bool-t   (type "cairo_bool_t"))
-(c-define-type cairo:status-t   (type "cairo_status_t"))
-(c-define-type cairo:status-t*  (pointer cairo:status-t))
-(c-define-type cairo:status-t** (pointer cairo:status-t*))
 (c-define-type cairo:destroy-func-t  (function (void*) void))
 (c-define-type cairo:user-data-key-t  (type "cairo_user_data_key_t"))
 (c-define-type cairo:user-data-key-t*  (pointer cairo:user-data-key-t))
