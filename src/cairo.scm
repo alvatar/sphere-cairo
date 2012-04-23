@@ -4,8 +4,6 @@
 ;; ("Linux" ("-w -I/usr/include/cairo -I/usr/include/freetype2" "-lcairo"))
 ;; ("Darwin" ("-w -I/opt/local/include/cairo -I/opt/local/include/freetype2 -I/opt/local/include" "-L/opt/local/lib -lobjc -lcairo"))
 
-(%include base: ffi#)
-
 ;-------------------------------------------------------------------------------
 ; Includes
 ;-------------------------------------------------------------------------------

@@ -7,4 +7,9 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 cd $DIR/..
 if [[ ! -z `ls src/*.o[0-9] 2> /dev/null` ]]; then rm src/*.o[0-9]; fi
-gsc -e '(begin (include "/data/projects/scheme-prelude/src/prelude.scm") (include "compiler.scm"))'
+gsc -e '(begin (include "/data/projects/scheme-prelude/src/prelude.scm")
+(compile-file "module.scm" output: "cairo.o1" cc-options: "-w -I/usr/include/cairo -I/usr/include/freetype2" ld-options: "-lcairo")
+)'
+
+if [[ ! -d lib ]]; then mkdir lib; fi
+mv *.o[0-9] lib/
