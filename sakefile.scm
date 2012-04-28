@@ -12,7 +12,7 @@
 (define-task compile (init)
   (gambit-compile-file
    "module.scm"
-   options: "-cc-options \"-w -I/usr/include/cairo -I/usr/include/freetype2\""
+   options: "-cc-options \"-w -I/usr/include/cairo -I/usr/include/freetype2\" -ld-options \"-lcairo -lfreetype\""
    output: (string-append (current-build-directory) lib-name lib-suffix)))
 
 (define-task install (compile)
