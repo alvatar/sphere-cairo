@@ -10,10 +10,12 @@
   (delete-file lib-directory))
 
 (define-task compile (init)
-  (gambit-compile-file
-   "module.scm"
-   options: "-cc-options \"-w -I/usr/include/cairo -I/usr/include/freetype2\" -ld-options \"-lcairo -lfreetype\""
-   output: (string-append (current-build-directory) lib-name lib-suffix)))
+  (gambit-eval
+    ;(compile-file "module.scm" output: "opengl.o1" cc-options: "-w -I/usr/include/GL" ld-options: "-lGL")
+    "
+    (begin
+     (include \"~~prelude/prelude#.scm\")
+     (compile-file \"module.scm\" output: \"build/cairo.o1\" cc-options: \"-w -I/usr/include/cairo -I/usr/include/freetype2\" ld-options: \"-lcairo -lfreetype\"))"))
 
 (define-task install (compile)
   (make-directory lib-directory)
