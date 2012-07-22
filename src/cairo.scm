@@ -10,7 +10,7 @@
 
 (c-declare "#include <cairo.h>")
 (cond-expand
- ((not android)
+ ((not arm)
   (c-declare "#include <cairo-ft.h>")
   (c-declare "#include <cairo-pdf.h>")
   (c-declare "#include <cairo-ps.h>")
@@ -19,7 +19,8 @@
   (c-declare "#include <X11/Xlib.h>")
   (c-declare "#include <fontconfig/fontconfig.h>")
   (c-declare "#include <ft2build.h>")
-  (c-declare "#include FT_FREETYPE_H")))
+  (c-declare "#include FT_FREETYPE_H"))
+ (else))
 
 ;-------------------------------------------------------------------------------
 ; Enums
@@ -49,7 +50,7 @@
 (define cairo:line-cap-square CAIRO_LINE_CAP_SQUARE)
 
 (cond-expand
- ((not android)
+ ((not arm)
   (c-define-type cairo:font-slant-t "cairo_font_slant_t")
   (c-constants
    CAIRO_FONT_SLANT_NORMAL
@@ -64,7 +65,8 @@
    CAIRO_FONT_WEIGHT_NORMAL
    CAIRO_FONT_WEIGHT_BOLD)
   (define cairo:font-weight-normal CAIRO_FONT_WEIGHT_NORMAL)
-  (define cairo:font-weight-bold CAIRO_FONT_WEIGHT_BOLD)))
+  (define cairo:font-weight-bold CAIRO_FONT_WEIGHT_BOLD))
+ (else))
 
 ;(c-define-type cairo:status-t (type "cairo_status_t"))
 (c-define-type cairo:status-t unsigned-int)
@@ -115,7 +117,7 @@
 
 ;;; X-Window types
 (cond-expand
- ((not android)
+ ((not arm)
   (c-define-type Display "Display")
   (c-define-type Display* (pointer Display))
   (c-define-type Screen "Screen")
@@ -123,7 +125,8 @@
   (c-define-type Visual "Visual")
   (c-define-type Visual* (pointer Visual))
   (c-define-type Drawable unsigned-long)
-  (c-define-type Pixmap unsigned-long)))
+  (c-define-type Pixmap unsigned-long))
+ (else))
 ;;; FreeType types
 ;; (c-define-type FT-Face (type "FT_Face"))
 ;; (c-define-type FcPattern (struct "FcPattern"))
@@ -418,21 +421,25 @@
 ;(define cairo:svg-surface-restrict-to-version (c-lambda (cairo:surface-t* cairo:svg-version-t) void "cairo_svg_surface_restrict_to_version"))
 ;(define cairo:svg-get-versions (c-lambda (cairo:svg-version-t** int*) void "cairo_svg_get_versions"))
 ;(define cairo:svg-version-to-string (c-lambda (cairo:svg-version-t) char-string "cairo_svg_version_to_string"))
-(define cairo:select-font-face (c-lambda (cairo:t* char-string cairo:font-slant-t cairo:font-weight-t) void "cairo_select_font_face"))
-(define cairo:set-font-size (c-lambda (cairo:t* double) void "cairo_set_font_size"))
-(define cairo:set-font-matrix (c-lambda (cairo:t* cairo:matrix-t*) void "cairo_set_font_matrix"))
-(define cairo:get-font-matrix (c-lambda (cairo:t* cairo:matrix-t*) void "cairo_get_font_matrix"))
-(define cairo:set-font-options (c-lambda (cairo:t* cairo:font-options-t*) void "cairo_set_font_options"))
-(define cairo:get-font-options (c-lambda (cairo:t* cairo:font-options-t*) void "cairo_get_font_options"))
-(define cairo:set-font-face (c-lambda (cairo:t* cairo:font-face-t*) void "cairo_set_font_face"))
-(define cairo:get-font-face (c-lambda (cairo:t*) cairo:font-face-t* "cairo_get_font_face"))
-(define cairo:set-scaled-font (c-lambda (cairo:t* cairo:scaled-font-t*) void "cairo_set_scaled_font"))
-(define cairo:get-scaled-font (c-lambda (cairo:t*) cairo:scaled-font-t* "cairo_get_scaled_font"))
-(define cairo:show-text (c-lambda (cairo:t* char-string) void "cairo_show_text"))
-(define cairo:show-glyphs (c-lambda (cairo:t* cairo:glyph-t* int) void "cairo_show_glyphs"))
-(define cairo:font-extents (c-lambda (cairo:t* cairo:font-extents-t*) void "cairo_font_extents"))
-(define cairo:text-extents (c-lambda (cairo:t* char-string cairo:text-extents-t*) void "cairo_text_extents"))
-(define cairo:glyph-extents (c-lambda (cairo:t* cairo:glyph-t* int cairo:text-extents-t*) void "cairo_glyph_extents"))
+(cond-expand
+ ((not arm)
+  (define cairo:select-font-face (c-lambda (cairo:t* char-string cairo:font-slant-t cairo:font-weight-t) void "cairo_select_font_face"))
+  (define cairo:set-font-size (c-lambda (cairo:t* double) void "cairo_set_font_size"))
+  (define cairo:set-font-matrix (c-lambda (cairo:t* cairo:matrix-t*) void "cairo_set_font_matrix"))
+  (define cairo:get-font-matrix (c-lambda (cairo:t* cairo:matrix-t*) void "cairo_get_font_matrix"))
+  (define cairo:set-font-options (c-lambda (cairo:t* cairo:font-options-t*) void "cairo_set_font_options"))
+  (define cairo:get-font-options (c-lambda (cairo:t* cairo:font-options-t*) void "cairo_get_font_options"))
+  (define cairo:set-font-face (c-lambda (cairo:t* cairo:font-face-t*) void "cairo_set_font_face"))
+  (define cairo:get-font-face (c-lambda (cairo:t*) cairo:font-face-t* "cairo_get_font_face"))
+  (define cairo:set-scaled-font (c-lambda (cairo:t* cairo:scaled-font-t*) void "cairo_set_scaled_font"))
+  (define cairo:get-scaled-font (c-lambda (cairo:t*) cairo:scaled-font-t* "cairo_get_scaled_font"))
+  (define cairo:show-text (c-lambda (cairo:t* char-string) void "cairo_show_text"))
+  (define cairo:show-glyphs (c-lambda (cairo:t* cairo:glyph-t* int) void "cairo_show_glyphs"))
+  (define cairo:font-extents (c-lambda (cairo:t* cairo:font-extents-t*) void "cairo_font_extents"))
+  (define cairo:text-extents (c-lambda (cairo:t* char-string cairo:text-extents-t*) void "cairo_text_extents"))
+  (define cairo:glyph-extents (c-lambda (cairo:t* cairo:glyph-t* int cairo:text-extents-t*) void "cairo_glyph_extents")))
+ (else))
+
 (define cairo:translate (c-lambda (cairo:t* double double) void "cairo_translate"))
 (define cairo:scale (c-lambda (cairo:t* double double) void "cairo_scale"))
 (define cairo:rotate (c-lambda (cairo:t* double) void "cairo_rotate"))
@@ -446,7 +453,7 @@
 (define cairo:device-to-user-distance (c-lambda (cairo:t* double* double*) void "cairo_device_to_user_distance"))
 
 (cond-expand
- ((not android)
+ ((not arm)
   (define cairo:xlib-surface-create (c-lambda (Display* Drawable Visual* int int) cairo:surface-t* "cairo_xlib_surface_create"))
   (define cairo:xlib-surface-create-for-bitmap (c-lambda (Display* Pixmap Screen* int int) cairo:surface-t* "cairo_xlib_surface_create_for_bitmap"))
   (define cairo:xlib-surface-set-size (c-lambda (cairo:surface-t* int int) void "cairo_xlib_surface_set_size"))
