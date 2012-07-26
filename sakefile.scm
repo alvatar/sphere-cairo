@@ -13,7 +13,7 @@
 (define-task compile (init)
   (gambit-eval-here
    `(begin
-      (include "~~prelude/prelude#.scm")
+      (include "~~base/prelude#.scm")
       (compile-file "module.scm"
                     output: ,(string-append (current-build-directory) lib-name lib-suffix)
                     cc-options: "-w -I/usr/include/cairo -I/usr/include/freetype2"
@@ -22,7 +22,7 @@
 (define-task compile-to-c (init)
   (gambit-eval-here
    `(begin
-      (include "~~prelude/prelude#.scm")
+      (include "~~base/prelude#.scm")
       (define-cond-expand-feature arm)
       (compile-file-to-target
        "module.scm"
