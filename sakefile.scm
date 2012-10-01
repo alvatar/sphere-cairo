@@ -1,41 +1,35 @@
-(define lib-directory "lib/")
-(define lib-name "cairo")
-(define lib-suffix ".o1")
-(define c-suffix ".c")
+(include "~~base/prelude#.scm")
+(%include sake: utils#)
+
+(define modules '(cairo))
 
 (define-task init ()
   (make-directory (current-build-directory)))
 
 (define-task clean (init)
   (delete-file (current-build-directory))
-  (delete-file lib-directory))
+  (delete-file (default-lib-directory)))
 
 (define-task compile (init)
-  (gambit-eval-here
-   `(begin
-      (include "~~base/prelude#.scm")
-      (compile-file "module.scm"
-                    output: ,(string-append (current-build-directory) lib-name lib-suffix)
-                    cc-options: "-w -I/usr/include/cairo -I/usr/include/freetype2"
-                    ld-options: "-lcairo -lfreetype"))))
+  (let ((cc-options "-w -I/usr/include/cairo -I/usr/include/freetype2")
+        (ld-options "-lcairo -lfreetype"))
+   (for-each (lambda (m)
+               (sake:compile-c-file (sake:generate-c-file m)
+                                    cc-options: cc-options
+                                    ld-options: ld-options)
+               (sake:compile-c-file (sake:generate-c-file m features: '(mobile debug))
+                                    cc-options: cc-options
+                                    ld-options: ld-options))
+             modules)))
 
-(define-task compile-to-c (init)
-  (gambit-eval-here
-   `(begin
-      (include "~~base/prelude#.scm")
-      (define-cond-expand-feature arm)
-      (compile-file-to-target
-       "module.scm"
-       output: ,(string-append (current-build-directory) lib-name c-suffix)))))
+;; TODO:       (define-cond-expand-feature arm)
 
-(define-task install (compile compile-to-c)
-  (make-directory lib-directory)
-  (delete-file (string-append lib-directory lib-name lib-suffix))
-  (delete-file (string-append lib-directory lib-name c-suffix))
-  (copy-file (string-append (current-build-directory) lib-name lib-suffix)
-             (string-append lib-directory lib-name lib-suffix))
-  (copy-file (string-append (current-build-directory) lib-name c-suffix)
-             (string-append lib-directory lib-name c-suffix)))
+(define-task install (compile)
+  (make-directory (default-lib-directory))
+  (for-each (lambda (m)
+              (sake:install-compiled-module m)
+              (sake:install-compiled-module m features: '(mobile debug)))
+            modules))
 
-(define-task all (compile install)
-  '(compile and install))
+(define-task all (install)
+  'all)
