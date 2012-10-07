@@ -7,14 +7,16 @@
   (sake:default-clean))
 
 (define-task compile ()
-  (let ((cc-options "-w -I/usr/include/cairo -I/usr/include/freetype2")
+  (let ((include '((base: ffi#)))
+        (cc-options "-w -I/usr/include/cairo -I/usr/include/freetype2")
         (ld-options "-lcairo -lfreetype"))
     (for-each (lambda (m)
-                (sake:compile-c-file (sake:generate-c-file m)
+                (sake:compile-c-file (sake:generate-c-file m include: include)
                                      cc-options: cc-options
                                      ld-options: ld-options)
                 (sake:compile-c-file (sake:generate-c-file m
                                                            version: '(debug)
+                                                           include: include
                                                            compiler-options: '(debug))
                                      cc-options: cc-options
                                      ld-options: ld-options))

@@ -10,7 +10,7 @@
 
 (c-declare "#include <cairo.h>")
 (cond-expand
- ((not arm)
+ (desktop
   (c-declare "#include <cairo-ft.h>")
   (c-declare "#include <cairo-pdf.h>")
   (c-declare "#include <cairo-ps.h>")
@@ -50,7 +50,7 @@
 (define cairo:line-cap-square CAIRO_LINE_CAP_SQUARE)
 
 (cond-expand
- ((not arm)
+ (desktop
   (c-define-type cairo:font-slant-t "cairo_font_slant_t")
   (c-constants
    CAIRO_FONT_SLANT_NORMAL
@@ -117,7 +117,7 @@
 
 ;;; X-Window types
 (cond-expand
- ((not arm)
+ (desktop
   (c-define-type Display "Display")
   (c-define-type Display* (pointer Display))
   (c-define-type Screen "Screen")
@@ -422,7 +422,7 @@
 ;(define cairo:svg-get-versions (c-lambda (cairo:svg-version-t** int*) void "cairo_svg_get_versions"))
 ;(define cairo:svg-version-to-string (c-lambda (cairo:svg-version-t) char-string "cairo_svg_version_to_string"))
 (cond-expand
- ((not arm)
+ (desktop
   (define cairo:select-font-face (c-lambda (cairo:t* char-string cairo:font-slant-t cairo:font-weight-t) void "cairo_select_font_face"))
   (define cairo:set-font-size (c-lambda (cairo:t* double) void "cairo_set_font_size"))
   (define cairo:set-font-matrix (c-lambda (cairo:t* cairo:matrix-t*) void "cairo_set_font_matrix"))
@@ -453,7 +453,7 @@
 (define cairo:device-to-user-distance (c-lambda (cairo:t* double* double*) void "cairo_device_to_user_distance"))
 
 (cond-expand
- ((not arm)
+ (desktop
   (define cairo:xlib-surface-create (c-lambda (Display* Drawable Visual* int int) cairo:surface-t* "cairo_xlib_surface_create"))
   (define cairo:xlib-surface-create-for-bitmap (c-lambda (Display* Pixmap Screen* int int) cairo:surface-t* "cairo_xlib_surface_create_for_bitmap"))
   (define cairo:xlib-surface-set-size (c-lambda (cairo:surface-t* int int) void "cairo_xlib_surface_set_size"))
