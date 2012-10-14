@@ -145,11 +145,6 @@
 ;(c-define-type cairo:svg-version-t** (pointer (pointer "cairo_svg_version_t")))
 ;(c-define-type cairo:destroy-func-t  (pointer "cairo_destroy_func_t"))
 
-(c-define-type double* (pointer double))
-(c-define-type void* (pointer void))
-(c-define-type char* char-string)
-(c-define-type int* (pointer int))
-(c-define-type unsigned-char* (pointer unsigned-char))
 (c-define-type cairo:surface-t (struct "cairo_surface_t"))
 (c-define-type cairo:surface-t* (pointer "cairo_surface_t"))
 (c-define-type cairo:surface-t** (pointer (pointer "cairo_surface_t")))
