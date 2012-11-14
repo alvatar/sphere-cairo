@@ -1,6 +1,6 @@
 (sphere: "cairo")
 (dependencies:
  (cairo (include
-         (base: ffi#))
+         (base: ffi-macros))
         (load
          (base: ffi))))
