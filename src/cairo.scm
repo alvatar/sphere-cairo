@@ -445,3 +445,26 @@
   (define cairo_xlib_surface_get_height (c-lambda (cairo_surface_t*) int "cairo_xlib_surface_get_height"))
   (define cairo_xlib_surface_get_depth (c-lambda (cairo_surface_t*) int "cairo_xlib_surface_get_depth")))
  (else))
+
+;-------------------------------------------------------------------------------
+; Extra functions
+;-------------------------------------------------------------------------------
+
+(c-declare "#include <string.h>")
+
+;; ___arg1; source texture
+;; ___arg2; source texture width
+;; ___arg3; source texture height
+;; ___arg4: pot texture
+;; ___arg5: pot size
+;; ___arg6: channels
+(define cairo-copy-surface-to-pot-buffer
+  (c-lambda (void* unsigned-int unsigned-int
+             void* unsigned-int unsigned-int)
+            void
+            "
+int i;
+for (i=0; i<___arg3; i++) {
+  memcpy(___arg4+(___arg5 * ___arg6 * i), ___arg1+(___arg2 * ___arg6 * i), ___arg6 * ___arg2);
+}
+"))
