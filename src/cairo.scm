@@ -98,8 +98,11 @@
 (define cairo_identity_matrix (c-lambda (cairo_t*) void "cairo_identity_matrix"))
 (define cairo_image_surface_create (c-lambda (cairo_format_t int int) cairo_surface_t* "cairo_image_surface_create"))
 (define cairo_image_surface_create_for_data (c-lambda (unsigned-char* cairo_format_t int int int) cairo_surface_t* "cairo_image_surface_create_for_data"))
-(define cairo_image_surface_create_from_png (c-lambda (char-string) cairo_surface_t* "cairo_image_surface_create_from_png"))
-(define cairo_image_surface_create_from_png_stream (c-lambda (cairo_read_func_t void*) cairo_surface_t* "cairo_image_surface_create_from_png_stream"))
+(cond-expand
+ (cairo-png
+  (define cairo_image_surface_create_from_png (c-lambda (char-string) cairo_surface_t* "cairo_image_surface_create_from_png"))
+  (define cairo_image_surface_create_from_png_stream (c-lambda (cairo_read_func_t void*) cairo_surface_t* "cairo_image_surface_create_from_png_stream")))
+ (else))
 (define cairo_image_surface_get_data (c-lambda (cairo_surface_t*) unsigned-char* "cairo_image_surface_get_data"))
 (define cairo_image_surface_get_format (c-lambda (cairo_surface_t*) cairo_format_t "cairo_image_surface_get_format"))
 (define cairo_image_surface_get_height (c-lambda (cairo_surface_t*) int "cairo_image_surface_get_height"))
@@ -337,8 +340,11 @@
 (define cairo_surface_status (c-lambda (cairo_surface_t*) cairo_status_t "cairo_surface_status"))
 (define cairo_surface_supports_mime_type (c-lambda (cairo_surface_t* char-string) cairo_bool_t "cairo_surface_supports_mime_type"))
 (define cairo_surface_unmap_image (c-lambda (cairo_surface_t* cairo_surface_t*) void "cairo_surface_unmap_image"))
-(define cairo_surface_write_to_png (c-lambda (cairo_surface_t* char-string) cairo_status_t "cairo_surface_write_to_png"))
-(define cairo_surface_write_to_png_stream (c-lambda (cairo_surface_t* cairo_write_func_t void*) cairo_status_t "cairo_surface_write_to_png_stream"))
+(cond-expand
+ (cairo-png
+  (define cairo_surface_write_to_png (c-lambda (cairo_surface_t* char-string) cairo_status_t "cairo_surface_write_to_png"))
+  (define cairo_surface_write_to_png_stream (c-lambda (cairo_surface_t* cairo_write_func_t void*) cairo_status_t "cairo_surface_write_to_png_stream")))
+ (else))
 (cond-expand
  (cairo-svg
   (define cairo_svg_get_versions (c-lambda (cairo_svg_version_t** int*) void "cairo_svg_get_versions"))
