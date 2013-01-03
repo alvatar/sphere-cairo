@@ -1,7 +1,7 @@
 (sphere: "cairo")
 (dependencies:
- (cairo (include
-         (base: ffi-macros)
+ (cairo (compilation-prelude
+         (core: ffi-header)
          (cairo: cairo-header))
         (load
-         (base: ffi))))
+         (core: ffi))))
