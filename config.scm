@@ -1,6 +1,6 @@
 (sphere: "cairo")
 (dependencies:
- (cairo (compilation-prelude
+ (cairo (prelude
          (core: ffi-header)
          (cairo: cairo-header))
         (load
