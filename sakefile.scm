@@ -1,19 +1,18 @@
-(define modules '(cairo))
-
 (define-task clean ()
   (sake:default-clean))
 
 (define-task compile ()
   (let ((cc-options "-w -I/usr/include/cairo -I/usr/include/freetype2")
         (ld-options "-lcairo -lfreetype"))
-    (for-each (lambda (m)
-                (sake:compile-c-to-o (sake:compile-to-c m)
-                                     cc-options: cc-options
-                                     ld-options: ld-options))
-              modules)))
+    (sake:compile-c-to-o (sake:compile-to-c 'cairo compiler-options: '(debug))
+                         cc-options: cc-options
+                         ld-options: ld-options)
+    (sake:compile-c-to-o (sake:compile-to-c 'cairo)
+                         cc-options: cc-options
+                         ld-options: ld-options)))
 
 (define-task install ()
-  (for-each sake:install-compiled-module modules)
+  (sake:install-compiled-module 'cairo versions: '(() (debug)))
   (sake:install-sphere-to-system))
 
 (define-task uninstall ()
