@@ -1,7 +1,9 @@
 (sphere: "cairo")
 (dependencies:
- (cairo (prelude
-         (core: ffi-header)
-         (cairo: cairo-header))
-        (load
-         (core: ffi))))
+ (cairo
+  (cc-options (pkg-config--cflags "cairo freetype2") "-w")
+  (ld-options (pkg-config--libs "cairo freetype2"))
+  (prelude
+   (core: ffi-header)
+   (cairo: cairo-header))))
+
