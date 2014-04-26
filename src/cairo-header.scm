@@ -5,18 +5,61 @@
 ; Includes
 ;-------------------------------------------------------------------------------
 
+(c-declare "#include <cairo.h>")
+
 (cond-expand
- ((or compile-to-o compile-to-c)
-  (c-declare "#include <cairo.h>")
-  (cond-expand
-   (cairo-pdf (c-declare "#include <cairo-pdf.h>")) (else))
-  (cond-expand
-   (cairo-ps (c-declare "#include <cairo-ps.h>")) (else))
-  (cond-expand
-   (cairo-script (c-declare "#include <cairo-script.h>")) (else))
-  (cond-expand
-   (cairo-svg (c-declare "#include <cairo-svg.h>")) (else)))
- (else))
+  (cairo-pdf (c-declare "#include <cairo-pdf.h>"))
+  (else))
+(cond-expand
+  (cairo-ps (c-declare "#include <cairo-ps.h>"))
+  (else))
+(cond-expand
+  (cairo-script (c-declare "#include <cairo-script.h>"))
+  (else))
+(cond-expand
+  (cairo-svg (c-declare "#include <cairo-svg.h>"))
+  (else))
+
+(c-declare #<<end-of-string
+struct cairo_font_extents_t {
+    double ascent;
+    double descent;
+    double height;
+    double max_x_advance;
+    double max_y_advance;
+};
+
+struct cairo_glyph_t {
+    unsigned long        index;
+    double               x;
+    double               y;
+};
+
+struct cairo_matrix_t {
+    double xx;
+    double yx;
+    double xy;
+    double yy;
+    double x0;
+    double y0;
+};
+
+struct cairo_text_cluster_t {
+    int        num_bytes;
+    int        num_glyphs;
+};
+
+struct cairo_text_extents_t {
+    double x_bearing;
+    double y_bearing;
+    double width;
+    double height;
+    double x_advance;
+    double y_advance;
+};
+
+end-of-string
+)
 
 ;; (cond-expand
 ;;  (desktop
@@ -61,17 +104,15 @@
 ; Enums
 ;-------------------------------------------------------------------------------
 
-(cond-expand
- ((or compile-to-o compile-to-c)
-  
+
   (c-define-type cairo_content_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_CONTENT_COLOR
    CAIRO_CONTENT_ALPHA
    CAIRO_CONTENT_COLOR_ALPHA)
 
   (c-define-type cairo_device_type_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_DEVICE_TYPE_DRM
    CAIRO_DEVICE_TYPE_GL
    CAIRO_DEVICE_TYPE_SCRIPT
@@ -83,19 +124,19 @@
    CAIRO_DEVICE_TYPE_INVALID)
 
   (c-define-type cairo_extend_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_EXTEND_NONE
    CAIRO_EXTEND_REPEAT
    CAIRO_EXTEND_REFLECT
    CAIRO_EXTEND_PAD)
 
   (c-define-type cairo_fill_rule_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_FILL_RULE_WINDING
    CAIRO_FILL_RULE_EVEN_ODD)
 
   (c-define-type cairo_filter_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_FILTER_FAST
    CAIRO_FILTER_GOOD
    CAIRO_FILTER_BEST
@@ -104,13 +145,13 @@
    CAIRO_FILTER_GAUSSIAN)
 
   (c-define-type cairo_font_slant_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_FONT_SLANT_NORMAL
    CAIRO_FONT_SLANT_ITALIC
    CAIRO_FONT_SLANT_OBLIQUE)
 
   (c-define-type cairo_font_type_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_FONT_TYPE_TOY
    CAIRO_FONT_TYPE_FT
    CAIRO_FONT_TYPE_WIN32
@@ -118,12 +159,12 @@
    CAIRO_FONT_TYPE_USER)
 
   (c-define-type cairo_font_weight_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_FONT_WEIGHT_NORMAL
    CAIRO_FONT_WEIGHT_BOLD)
 
   (c-define-type cairo_format_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_FORMAT_INVALID
    CAIRO_FORMAT_ARGB32
    CAIRO_FORMAT_RGB24
@@ -133,18 +174,18 @@
    CAIRO_FORMAT_RGB30)
 
   ;; (c-define-type cairo_ft_synthesize_t unsigned-int)
-  ;; (c-constants
+  ;; (c-define-constants
   ;;  CAIRO_FT_SYNTHESIZE_BOLD
   ;;  CAIRO_FT_SYNTHESIZE_OBLIQUE)
 
   (c-define-type cairo_hint_metrics_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_HINT_METRICS_DEFAULT
    CAIRO_HINT_METRICS_OFF
    CAIRO_HINT_METRICS_ON)
 
   (c-define-type cairo_hint_style_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_HINT_STYLE_DEFAULT
    CAIRO_HINT_STYLE_NONE
    CAIRO_HINT_STYLE_SLIGHT
@@ -152,19 +193,19 @@
    CAIRO_HINT_STYLE_FULL)
 
   (c-define-type cairo_line_cap_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_LINE_CAP_BUTT
    CAIRO_LINE_CAP_ROUND
    CAIRO_LINE_CAP_SQUARE)
 
   (c-define-type cairo_line_join_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_LINE_JOIN_MITER
    CAIRO_LINE_JOIN_ROUND
    CAIRO_LINE_JOIN_BEVEL)
 
   (c-define-type cairo_operator_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_OPERATOR_CLEAR
    CAIRO_OPERATOR_SOURCE
    CAIRO_OPERATOR_OVER
@@ -196,14 +237,14 @@
    CAIRO_OPERATOR_HSL_LUMINOSITY)
   
   (c-define-type cairo_path_data_type_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_PATH_MOVE_TO
    CAIRO_PATH_LINE_TO
    CAIRO_PATH_CURVE_TO
    CAIRO_PATH_CLOSE_PATH)
 
   (c-define-type cairo_pattern_type_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_PATTERN_TYPE_SOLID
    CAIRO_PATTERN_TYPE_SURFACE
    CAIRO_PATTERN_TYPE_LINEAR
@@ -216,7 +257,7 @@
     (c-define-type cairo_pdf_version_t unsigned-int)
     (c-define-type cairo_pdf_version_t* (pointer cairo_pdf_version_t))
     (c-define-type cairo_pdf_version_t** (pointer cairo_pdf_version_t*))
-    (c-constants
+    (c-define-constants
      CAIRO_PDF_VERSION_1_4
      CAIRO_PDF_VERSION_1_5))
    (else))
@@ -226,13 +267,13 @@
     (c-define-type cairo_ps_level_t unsigned-int)
     (c-define-type cairo_ps_level_t* (pointer cairo_ps_level_t))
     (c-define-type cairo_ps_level_t** (pointer cairo_ps_level_t*))
-    (c-constants
+    (c-define-constants
      CAIRO_PS_LEVEL_2
      CAIRO_PS_LEVEL_3))
    (else))
 
   (c-define-type cairo_region_overlap_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_REGION_OVERLAP_IN
    CAIRO_REGION_OVERLAP_OUT
    CAIRO_REGION_OVERLAP_PART)
@@ -240,7 +281,7 @@
   (cond-expand
    (cairo-script
     (c-define-type cairo_script_mode_t unsigned-int)
-    (c-constants
+    (c-define-constants
      CAIRO_SCRIPT_MODE_ASCII
      CAIRO_SCRIPT_MODE_BINARY))
    (else))
@@ -248,7 +289,7 @@
   (c-define-type cairo_status_t unsigned-int)
   (c-define-type cairo_status_t*  (pointer cairo_status_t))
   (c-define-type cairo_status_t** (pointer cairo_status_t*))
-  (c-constants
+  (c-define-constants
    CAIRO_STATUS_SUCCESS
    CAIRO_STATUS_NO_MEMORY
    CAIRO_STATUS_INVALID_RESTORE
@@ -290,7 +331,7 @@
    CAIRO_STATUS_LAST_STATUS)
 
   (c-define-type cairo_subpixel_order_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_SUBPIXEL_ORDER_DEFAULT
    CAIRO_SUBPIXEL_ORDER_RGB
    CAIRO_SUBPIXEL_ORDER_BGR
@@ -298,7 +339,7 @@
    CAIRO_SUBPIXEL_ORDER_VBGR)
 
   (c-define-type cairo_surface_type_t unsigned-int)
-  (c-constants
+  (c-define-constants
    CAIRO_SURFACE_TYPE_IMAGE
    CAIRO_SURFACE_TYPE_PDF
    CAIRO_SURFACE_TYPE_PS
@@ -330,7 +371,7 @@
     (c-define-type cairo_svg_version_t unsigned-int)
     (c-define-type cairo_svg_version_t* (pointer cairo_svg_version_t))
     (c-define-type cairo_svg_version_t** (pointer cairo_svg_version_t*))
-    (c-constants
+    (c-define-constants
      CAIRO_SVG_VERSION_1_1
      CAIRO_SVG_VERSION_1_2))
    (else))
@@ -338,36 +379,62 @@
   (c-define-type cairo_text_cluster_flags_t unsigned-int)
   (c-define-type cairo_text_cluster_flags_t* (pointer cairo_text_cluster_flags_t))
   (c-define-type cairo_text_cluster_flags_t** (pointer cairo_text_cluster_flags_t*))
-  (c-constants
-   CAIRO_TEXT_CLUSTER_FLAG_BACKWARD))
- (else))
+  (c-define-constants
+   CAIRO_TEXT_CLUSTER_FLAG_BACKWARD)
+
 
 
 ;-------------------------------------------------------------------------------
 ; Types
 ;-------------------------------------------------------------------------------
 
-(cond-expand
- ((or compile-to-o compile-to-c)
+(c-define-constants
+    CAIRO_ANTIALIAS_DEFAULT
+    CAIRO_ANTIALIAS_NONE
+    CAIRO_ANTIALIAS_GRAY
+    CAIRO_ANTIALIAS_SUBPIXEL
+    CAIRO_ANTIALIAS_FAST
+    CAIRO_ANTIALIAS_GOOD
+    CAIRO_ANTIALIAS_BEST)
+
   (c-define-type cairo_antialias_t "cairo_antialias_t")
   (c-define-type cairo_bool_t (type "cairo_bool_t"))
   (c-define-type cairo_device_t "cairo_device_t")
   (c-define-type cairo_device_t* (pointer cairo_device_t))
-  (c-define-type cairo_font_extents_t (struct "cairo_font_extents_t"))
-  (c-define-type cairo_font_extents_t* (pointer cairo_font_extents_t))
-  (c-define-type cairo_font_extents_t** (pointer cairo_font_extents_t*))
+
+
+  (c-define-type* (struct cairo_font_extents_t))
+  (c-define-struct cairo_font_extents_t
+                   (ascent double)
+                   (descent double)
+                   (height double)
+                   (max_x_advance double)
+                   (max_y_advance double))
+
   (c-define-type cairo_font_face_t "cairo_font_face_t")
   (c-define-type cairo_font_face_t* (pointer cairo_font_face_t))
   (c-define-type cairo_font_face_t** (pointer cairo_font_face_t*))
   (c-define-type cairo_font_options_t (struct "cairo_font_options_t"))
   (c-define-type cairo_font_options_t* (pointer cairo_font_options_t))
   (c-define-type cairo_font_options_t** (pointer cairo_font_options_t*))
-  (c-define-type cairo_glyph_t (struct "cairo_glyph_t"))
-  (c-define-type cairo_glyph_t* (pointer cairo_glyph_t))
+
+  (c-define-type* (struct cairo_glyph_t))
+  (c-define-struct cairo_glyph_t
+                   (index unsigned-long)
+                   (x double)
+                   (y double))
   (c-define-type cairo_glyph_t** (pointer cairo_glyph_t*))
-  (c-define-type cairo_matrix_t (struct "cairo_matrix_t"))
-  (c-define-type cairo_matrix_t* (pointer cairo_matrix_t))
+
+  (c-define-type* (struct cairo_matrix_t))
+  (c-define-struct cairo_matrix_t
+                   (xx double)
+                   (yx double)
+                   (xy double)
+                   (yy double)
+                   (x0 double)
+                   (y0 double))
   (c-define-type cairo_matrix_t** (pointer cairo_matrix_t*))
+
   ;; TODO: Access to cairo_path_data_t
   ;; (c-declare "
   ;; typedef struct {
@@ -416,18 +483,26 @@
   (c-define-type cairo_t (struct "cairo_t"))
   (c-define-type cairo_t* (pointer cairo_t))
   (c-define-type cairo_t** (pointer cairo_t*))
-  (c-define-type cairo_text_cluster_t (struct "cairo_text_cluster_t"))
-  (c-define-type cairo_text_cluster_t* (pointer cairo_text_cluster_t))
-  (c-define-type cairo_text_cluster_t** (pointer cairo_text_cluster_t*))
-  (c-define-type cairo_text_extents_t (struct "cairo_text_extents_t"))
-  (c-define-type cairo_text_extents_t* (pointer cairo_text_extents_t))
-  (c-define-type cairo_text_extents_t** (pointer cairo_text_extents_t*))
-  (c-define-type cairo_user_data_key_t  (type "cairo_user_data_key_t"))
-  (c-define-type cairo_user_data_key_t*  (pointer cairo_user_data_key_t)))
- (else))
 
-(cond-expand
- ((or compile-to-o compile-to-c)
+  (c-define-type* (struct cairo_text_cluster_t))
+  (c-define-struct cairo_text_cluster_t
+                   (num_bytes int)
+                   (num_glyphs int))
+  (c-define-type cairo_text_cluster_t** (pointer cairo_text_cluster_t*))
+
+  (c-define-type* (struct cairo_text_extents_t))
+  (c-define-struct cairo_text_extents_t
+                   (x_bearing double)
+                   (y_bearing double)
+                   (width double)
+                   (height double)
+                   (x_advance double)
+                   (y_advance double))
+  (c-define-type cairo_text_extents_t** (pointer cairo_text_extents_t*))
+
+  (c-define-type cairo_user_data_key_t  (type "cairo_user_data_key_t"))
+  (c-define-type cairo_user_data_key_t*  (pointer cairo_user_data_key_t))
+
   (c-define-type cairo_destroy_func_t (function (void*) void))
   (c-define-type cairo_raster_source_acquire_func_t (function (cairo_pattern_t* void* cairo_surface_t* cairo_rectangle_int_t*) cairo_surface_t))
   (c-define-type cairo_raster_source_acquire_func_t* (pointer cairo_raster_source_acquire_func_t))
@@ -445,8 +520,8 @@
   (c-define-type cairo_user_scaled_font_render_glyph_func_t (function (cairo_scaled_font_t* unsigned-long cairo_t* cairo_text_extents_t*) cairo_status_t))
   (c-define-type cairo_user_scaled_font_text_to_glyphs_func_t (function (cairo_scaled_font_t* char-string int cairo_glyph_t** int*  cairo_text_cluster_t** int* cairo_text_cluster_flags_t*) cairo_status_t))
   (c-define-type cairo_user_scaled_font_unicode_to_glyph_func_t (function (cairo_scaled_font_t* unsigned-long unsigned-long*) cairo_status_t))
-  (c-define-type cairo_write_func_t (function (void* unsigned-char* unsigned-int) cairo_status_t)))
- (else))
+  (c-define-type cairo_write_func_t (function (void* unsigned-char* unsigned-int) cairo_status_t))
+
 
 ;; (c-define-type Display "Display")
 ;; (c-define-type Display* (pointer Display))
