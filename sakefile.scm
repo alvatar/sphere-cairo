@@ -8,7 +8,7 @@
       (setenv "PKG_CONFIG_PATH" "/opt/X11/lib/pkgconfig/"))
   (for-each (lambda (m)
               (sake#compile-module m cond-expand-features: '(debug) version: '(debug))
-              (sake#compile-module m cond-expand-features: '(optimize) verbose: #t))
+              (sake#compile-module m cond-expand-features: '(optimize)))
             modules))
 
 (define-task post-compile ()
