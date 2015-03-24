@@ -1,5 +1,8 @@
-;;; Copyright (c) 2012, Alvaro Castro-Castilla. All rights reserved.
-;;; Cairo library bindings for Scheme
+;;!!! Cairo library bindings for Scheme
+;; .author Alvaro Castro-Castilla, 2012-2015
+
+(include (spheres/gambit/ffi ffi-simple))
+(include (spheres/gambit/ffi types))
 
 ;-------------------------------------------------------------------------------
 ; Includes
