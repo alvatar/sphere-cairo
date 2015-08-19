@@ -1,8 +1,10 @@
 ;;!!! Cairo library bindings for Scheme
 ;; .author Alvaro Castro-Castilla, 2012-2015
 
-(include (spheres/gambit/ffi ffi-simple))
-(include (spheres/gambit/ffi types))
+(include (spheres/gambit/ffi c-define-base-macros#))
+(include (spheres/gambit/ffi c-define-type#))
+(include (spheres/gambit/ffi types#))
+(include (spheres/gambit/ffi c-define-base-macros#))
 
 ;-------------------------------------------------------------------------------
 ; Includes
