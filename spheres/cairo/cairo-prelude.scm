@@ -4,7 +4,6 @@
 (include (spheres/gambit/ffi c-define-base-macros#))
 (include (spheres/gambit/ffi c-define-type#))
 (include (spheres/gambit/ffi types#))
-(include (spheres/gambit/ffi c-define-base-macros#))
 
 ;-------------------------------------------------------------------------------
 ; Includes
